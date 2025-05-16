@@ -3,7 +3,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 # Jalankan Ollama
 ollama serve
-curl http://localhost:11434
+( curl http://localhost:11434 )
 
 # Tarik model Mistral ke lokal
 ollama pull mistral
