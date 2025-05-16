@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatbot Dokumen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0a0a0a, #2c2c2c);
+      color: #e0e0e0;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h2 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: float 2s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+
+    #upload-form,
+    #chat-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .custom-file-upload {
+      background-color: #333;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s ease;
+      user-select: none;
+    }
+
+    .custom-file-upload:hover {
+      background-color: #555;
+    }
+
+    button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+
+    button:disabled {
+      background-color: #222;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #666;
+    }
+
+    #chat-box {
+      background-color: #1c1c1c;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 800px;
+      height: 400px;
+      overflow-y: auto;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+
+    .chat-entry {
+      margin-bottom: 1rem;
+      word-break: break-word;
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+
+    .user {
+      background-color: #333;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .bot {
+      background-color: #222;
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    a {
+      color: #4da6ff;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      flex: 1;
+      background-color: #2e2e2e;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spinner {
+      border: 2px solid #eee;
+      border-top: 2px solid #4da6ff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      margin-left: 6px;
+    }
+
+    #loading-indicator {
+      display: none;
+      color: #4da6ff;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+    }
+
+    #loading-indicator .fa-robot {
+      animation: spin 1.5s linear infinite;
+    }
+
+    @media (max-width: 600px) {
+      #chat-box {
+        height: 300px;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      .custom-file-upload, button {
+        font-size: 0.9rem;
+        padding: 8px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2><i class="fa-solid fa-robot"></i>AI Assistant</h2>
+
+  <form id="upload-form">
+    <label for="file-upload" class="custom-file-upload">
+      <i class="fa-solid fa-file-arrow-up"></i> New File
+    </label>
+    <input id="file-upload" type="file" name="file" accept="application/pdf" required>
+    <button type="submit" id="upload-btn"><i class="fa-solid fa-upload"></i> Upload</button>
+  </form>
+
+  <div id="chat-box"></div>
+
+  <div id="loading-indicator">
+    <i class="fa-solid fa-robot"></i> AI sedang mengetik...
+  </div>
+
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="Tanya sesuatu..." required autocomplete="off" />
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i> Kirim</button>
+  </form>
+
+<script>
+window.onload = async () => {
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const chatForm = document.getElementById("chat-form");
+  const uploadBtn = document.getElementById("upload-btn");
+  const chatBox = document.getElementById("chat-box");
+
+  loadingIndicator.style.display = "none";
+
+  try {
+    const res = await fetch("/uploaded-file");
+    if (res.ok) {
+      const data = await res.json();
+      chatBox.innerHTML = "";
+      if (data.filename) {
+        chatBox.innerHTML += `<div class="chat-entry bot"><b>File aktif:</b> ${data.filename}</div>`;
+        chatForm.querySelector("#message").disabled = false;
+        chatForm.querySelector("button[type='submit']").disabled = false;
+        uploadBtn.disabled = false;
+      } else {
+        chatBox.innerHTML += `<div class="chat-entry bot"><b>Belum ada file diupload, silahkan upload dulu.</b></div>`;
+        chatForm.querySelector("#message").disabled = true;
+        chatForm.querySelector("button[type='submit']").disabled = true;
+        uploadBtn.disabled = false;
+      }
+    } else {
+      chatBox.innerHTML += `<div class="chat-entry bot"><b>Gagal mengambil data file aktif.</b></div>`;
+      chatForm.querySelector("#message").disabled = true;
+      chatForm.querySelector("button[type='submit']").disabled = true;
+    }
+  } catch {
+    chatBox.innerHTML += `<div class="chat-entry bot"><b>Gagal koneksi ke server.</b></div>`;
+    chatForm.querySelector("#message").disabled = true;
+    chatForm.querySelector("button[type='submit']").disabled = true;
+  }
+};
+
+function linkify(text) {
+  const urlRegex = /\b((https?:\/\/|www\.)[^\s<>()]+[^\s<>().,;!?])/gi;
+  return text.replace(urlRegex, function(url) {
+    let fullUrl = url;
+    if (!url.startsWith("http")) {
+      fullUrl = "http://" + url;
+    }
+    return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+}
+
+document.getElementById("upload-form").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const fileInput = document.getElementById("file-upload");
+  const chatBox = document.getElementById("chat-box");
+  const uploadBtn = document.getElementById("upload-btn");
+  const chatForm = document.getElementById("chat-form");
+
+  if (fileInput.files.length === 0) {
+    alert("Pilih file PDF terlebih dahulu!");
+    return;
+  }
+
+  const form = new FormData();
+  form.append("file", fileInput.files[0]);
+
+  uploadBtn.disabled = true;
+  uploadBtn.innerHTML = `<i class="fa-solid fa-upload"></i> Uploading <span class="spinner"></span>`;
+
+  try {
+    const res = await fetch("/upload", { method: "POST", body: form });
+    if (res.ok) {
+      chatBox.innerHTML = "";
+      const data = await res.json();
+      chatBox.innerHTML += `<div class="chat-entry bot"><b>Dokumen berhasil diupload! Silahkan Bertanya Sesuai dokumen yang kamu upload</b></div>`;
+      if (data.filename) {
+        chatBox.innerHTML += `<div class="chat-entry bot"><b>File aktif:</b> ${data.filename}</div>`;
+      }
+      chatForm.querySelector("#message").disabled = false;
+      chatForm.querySelector("button[type='submit']").disabled = false;
+      uploadBtn.disabled = false;
+    } else {
+      const err = await res.json();
+      chatBox.innerHTML += `<div class="chat-entry bot"><b>❌ Gagal upload:</b> ${err.message || "Unknown error"}</div>`;
+      uploadBtn.disabled = false;
+    }
+  } catch (error) {
+    chatBox.innerHTML += `<div class="chat-entry bot"><b>❌ Gagal koneksi ke server:</b> ${error.message}</div>`;
+    uploadBtn.disabled = false;
+  }
+
+  uploadBtn.innerHTML = `<i class="fa-solid fa-upload"></i> Upload`;
+  fileInput.value = "";
+};
+
+document.getElementById("chat-form").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const messageInput = document.getElementById("message");
+  const message = messageInput.value.trim();
+  if (!message) return;
+
+  const chatBox = document.getElementById("chat-box");
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const sendBtn = e.target.querySelector('button[type="submit"]');
+
+  chatBox.innerHTML += `<div class="chat-entry user"><b>Anda:</b> ${message}</div>`;
+
+  messageInput.disabled = true;
+  sendBtn.disabled = true;
+  loadingIndicator.style.display = "flex";
+
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      let botResponse = typeof data.response === "string"
+        ? data.response
+        : (data.response?.result || String(data.response));
+      botResponse = linkify(botResponse);
+      chatBox.innerHTML += `<div class="chat-entry bot"><b>AI:</b> ${botResponse}</div>`;
+    } else {
+      const err = await res.json();
+      alert("Error: " + (err.response || "Server error"));
+    }
+  } catch (error) {
+    alert("Gagal koneksi ke server: " + error.message);
+  }
+
+  loadingIndicator.style.display = "none";
+  messageInput.disabled = false;
+  sendBtn.disabled = false;
+  messageInput.value = "";
+};
+
+// Auto-scroll ke bawah saat elemen baru ditambahkan ke chat-box
+const chatBox = document.getElementById("chat-box");
+const scrollToBottom = () => {
+  chatBox.scrollTop = chatBox.scrollHeight;
+};
+
+const observer = new MutationObserver(() => {
+  scrollToBottom();
+});
+
+observer.observe(chatBox, { childList: true, subtree: true });
+</script>
+</body>
+</html>

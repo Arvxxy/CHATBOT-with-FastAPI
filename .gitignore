@@ -1,0 +1,16 @@
+# Abaikan folder virtual environment
+venv/
+
+# File Python tidak penting
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+
+# File konfigurasi pribadi
+.env
+
+# Folder editor
+.vscode/
+.idea/
