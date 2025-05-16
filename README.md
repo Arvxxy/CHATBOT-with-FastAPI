@@ -30,7 +30,7 @@ pip install -U langchain_chroma
 # Buat Folder Project
 mkdir local-embeding
 cd local-embeding
-copy repository dari github
+( copy repository dari github )
 
 # Buat virtual environment
 python3 -m venv venv
