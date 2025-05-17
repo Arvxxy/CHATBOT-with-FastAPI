@@ -1,3 +1,5 @@
+#MINIMAL SPESIFIKASI RAM 6 GB & 2 CORE CPU 
+
 # Unduh & install Ollama
 curl -fsSL https://ollama.com/install.sh | sh
 
@@ -20,8 +22,7 @@ ollama list
 sudo lsof -i :11434
 
 # Kill proses lokal 
-sudo systemctl stop ollama
-sudo systemctl disable ollama
+sudo systemctl stop ollama && sudo systemctl disable ollama
 
 # Jalankan di latar belakang / jika ingin jalan diluar server 
 nohup env OLLAMA_HOST=0.0.0.0:11434 ollama serve > ollama.log 2>&1 &
