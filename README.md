@@ -50,7 +50,7 @@ pip install langchain-ollama
 pip install -U langchain_chroma
 pip install python-multipart
 
-# Atur Hak Akses Folder FAISS
+# Atur Hak Akses Folder 
 sudo chown -R test:test /home/test/local-embeding/CHATBOT-with-FastAPI/vectorstore/
 
 # Jalankan API FastAPI
