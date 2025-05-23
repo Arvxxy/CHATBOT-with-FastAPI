@@ -43,12 +43,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install Environment paket 
-pip install --upgrade pip
-pip install sentence-transformers langchain faiss-cpu fastapi uvicorn
-pip install -U langchain-community
-pip install langchain-ollama
-pip install -U langchain_chroma
-pip install python-multipart
+pip install -U langchain faiss-cpu fastapi uvicorn langchain-community langchain-ollama langchain_chroma python-multipart
 
 # Atur Hak Akses Folder 
 sudo chown -R test:test /home/test/local-embeding/CHATBOT-with-FastAPI/vectorstore/
