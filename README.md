@@ -21,11 +21,11 @@ ollama list
 # Cek proses Ollama di port 11434
 sudo lsof -i :11434
 
-# Kill proses lokal 
+# Kill proses lokal ( Opsional )
 sudo systemctl stop ollama && sudo systemctl disable ollama
 
-# Jalankan di latar belakang / jika ingin jalan diluar server 
-nohup env OLLAMA_HOST=0.0.0.0:11434 ollama serve > ollama.log 2>&1 &
+# Jalankan di latar belakang / jika ingin jalan diluar server ( opsional )
+sudo nohup env OLLAMA_HOST=0.0.0.0:11434 ollama serve > /root/ollama.log 2>&1 &
 
 # Install Paket yang dibutuhkan 
 sudo apt install -y python3 python3-pip python3-venv
@@ -46,7 +46,7 @@ source venv/bin/activate
 pip install -U langchain faiss-cpu fastapi uvicorn langchain-community langchain-ollama langchain_chroma python-multipart
 
 # Atur Hak Akses Folder 
-sudo chown -R test:test /home/test/local-embeding/CHATBOT-with-FastAPI/vectorstore/
+sudo chown -R user:user /home/to/path/local-embeding/CHATBOT-with-FastAPI/vectorstore/
 
 # Jalankan API FastAPI
 uvicorn app:app --reload --host 0.0.0.0 --port 8000
